@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 ## 需要修改的函数
 
-在app.py中有`process_eye_images` 和 `generate_chat_reply` 函数是写死的函数需要替换成实际使用的图片处理和 `chatbot` API
+在app.py中有`process_eye_images` 和 `generate_chat_reply` 函数是写死的函数，需要替换成实际使用的图片处理和 `chatbot` API
 
 ## 运行指令
 

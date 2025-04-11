@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "@types/jest": "^29.2.5",
+    "jest": "^29.3.1"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "ant-design-vue": "^4.2.6",
+    "element-plus": "^2.9.7",
+    "vue": "^3.5.13"
+  }
+}

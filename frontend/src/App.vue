@@ -108,19 +108,19 @@
         <el-icon v-if="!chatVisible"><ChatDotRound /></el-icon>
         <el-icon v-else><Close /></el-icon>
       </el-button>
-      
-      <!-- 对话框 -->
-      <div class="chat-panel" :class="{ 'chat-visible': chatVisible }">
-        <div class="chat-header">
-          <span>智能助手</span>
-          <el-icon class="close-chat" @click="toggleChat"><Close /></el-icon>
-        </div>
-        <div class="chat-messages" ref="chatMessagesContainer">
-          <div v-for="(message, index) in chatMessages" :key="index" 
-              :class="['message', message.type === 'user' ? 'user-message' : 'bot-message']">
-            <div class="message-content">{{ message.content }}</div>
+        <div class="chat-panel" :class="{ 'chat-visible': chatVisible }">
+          <div class="chat-header">
+            <span>智能助手</span>
+            <el-icon class="close-chat" @click="toggleChat"><Close /></el-icon>
           </div>
-        </div>
+          <div class="chat-messages" ref="chatMessagesContainer">
+            <div v-for="(message, index) in chatMessages" :key="index" 
+                :class="['message', message.type === 'user' ? 'user-message' : 'bot-message']">
+              <div class="message-content" v-if="message.type === 'user'">{{ message.content }}</div>
+              <!-- 使用v-html渲染Markdown转换的HTML -->
+              <div class="message-content markdown-content" v-else v-html="renderMarkdown(message.content)"></div>
+            </div>
+          </div>
         <div class="chat-input">
           <el-input 
             v-model="userMessage" 
@@ -142,6 +142,19 @@ import { ref, computed, nextTick, watch } from 'vue';
 import { Plus, Download, ChatDotRound, Close } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axios from 'axios';
+import MarkdownIt from 'markdown-it';
+
+// 初始化markdown-it解析器
+const md = new MarkdownIt({
+  html: true,        // 启用HTML标签
+  breaks: true,      // 将\n转换为<br>
+  linkify: true,     // 自动转换URL为链接
+});
+
+// 添加Markdown渲染函数
+const renderMarkdown = (text) => {
+  return md.render(text);
+};
 
 // 标签页状态
 const activeTab = ref('single');
@@ -438,7 +451,6 @@ const scrollToBottom = () => {
 
 const sendMessage = async () => {
   if (!userMessage.value.trim() || chatSending.value) return;
-  
   const message = userMessage.value;
   chatMessages.value.push({ type: 'user', content: message });
   userMessage.value = '';
@@ -455,9 +467,9 @@ const sendMessage = async () => {
     });
     
     if (response.data.success) {
-      chatMessages.value.push({ type: 'bot', content: response.data.response }); // 这里返回的是markdown格式
+      chatMessages.value.push({ type: 'bot', content: response.data.response });
     } else {
-      chatMessages.value.push({ type: 'bot', content: '抱歉，我无法处理您的请求。' });
+    chatMessages.value.push({ type: 'bot', content: '抱歉，我无法处理您的请求。' });
     }
   } catch (error) {
     chatMessages.value.push({ type: 'bot', content: '抱歉，发生了网络错误，请稍后重试。' });
@@ -691,5 +703,81 @@ watch(chatMessages, () => {
     height: 400px;
     right: -20px;
   }
+}
+
+.markdown-content :deep(h1) {
+  font-size: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+  
+.markdown-content :deep(h2) {
+  font-size: 1.3em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+  
+.markdown-content :deep(h3) {
+  font-size: 1.1em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+  
+.markdown-content :deep(p) {
+  margin-bottom: 0.5em;
+}
+  
+.markdown-content :deep(ul), .markdown-content :deep(ol) {
+  padding-left: 1.5em;
+  margin-bottom: 0,5em;
+}
+  
+.markdown-content :deep(code) {
+  background-color: #f0f0f0;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+  
+.markdown-content :deep(pre) {
+  background-color: #f0f0f0;
+  padding: 0.5em;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin-bottom: 0.5em;
+}
+  
+.markdown-content :deep(blockquote) {
+  border-left: 4px solid #ddd;
+  padding-left: 1em;
+  color: #666;
+  margin-left: 0;
+  margin-right: 0;
+}
+  
+.markdown-content :deep(a) {
+  color: #409EFF;
+  text-decoration: none;
+}
+  
+.markdown-content :deep(a:hover) {
+  text-decoration: underline;
+}
+  
+.markdown-content :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 0.5em;
+}
+  
+.markdown-content :deep(th), .markdown-content :deep(td) {
+  border: 1px solid #ddd;
+  padding: 0.3em 0.6em;
+  text-align: left;
+}
+  
+.markdown-content :deep(th) {
+  background-color: #f2f2f2;
 }
 </style>

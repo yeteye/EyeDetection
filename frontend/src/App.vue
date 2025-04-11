@@ -232,8 +232,8 @@ const processImages = async () => {
     
     // 创建表单数据
     const formData = new FormData();
-    formData.append('left_eye', leftEyeFile.value);
-    formData.append('right_eye', rightEyeFile.value);
+    formData.append('left', leftEyeFile.value);
+    formData.append('right', rightEyeFile.value);
     
     // 模拟进度
     const progressInterval = setInterval(() => {
@@ -244,7 +244,7 @@ const processImages = async () => {
     
     try {
       // 发送请求
-      const response = await axios.post('/api/process-single', formData, {
+      const response = await axios.post('/predict_file', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -345,7 +345,7 @@ const processFolder = async () => {
         });
         
         // 发送请求
-        const response = await axios.post('/api/process-batch-files', formData, {
+        const response = await axios.post('/process-batch-files', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -361,7 +361,7 @@ const processFolder = async () => {
         }
       } else {
         // 如果是手动输入的路径
-        const response = await axios.post('/api/process-batch', {
+        const response = await axios.post('/process-batch', {
           folder_path: folderPath.value
         });
         
@@ -392,7 +392,7 @@ const downloadExcel = async () => {
   if (excelResult.value) {
     try {
       // 使用 axios 请求文件并设置 responseType 为 blob
-      const response = await axios.get(`/api/download?file=${encodeURIComponent(excelResult.value)}`, {
+      const response = await axios.get(`/download?file=${encodeURIComponent(excelResult.value)}`, {
         responseType: 'blob'
       });
       
@@ -450,12 +450,12 @@ const sendMessage = async () => {
   chatSending.value = true;
   
   try {
-    const response = await axios.post('/api/chat', {
-      message: message
+    const response = await axios.post('/chat', {
+      query: message
     });
     
     if (response.data.success) {
-      chatMessages.value.push({ type: 'bot', content: response.data.reply });
+      chatMessages.value.push({ type: 'bot', content: response.data.response }); // 这里返回的是markdown格式
     } else {
       chatMessages.value.push({ type: 'bot', content: '抱歉，我无法处理您的请求。' });
     }
